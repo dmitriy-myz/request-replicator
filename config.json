@@ -1,0 +1,18 @@
+{
+  "listen_port":8080,
+  "recipients": [
+    {
+      "host": "example.com",
+      "port": 80,
+      "is_secure": false
+    },
+    {
+      "host": "foo.example.com",
+      "port": 443,
+      "is_secure": true
+    }
+  ],
+  "requestTimeout": 5,
+  "clear_host_header": false,
+  "return_policy": "success|fail"
+}
