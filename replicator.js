@@ -16,13 +16,13 @@ try {
     process.exit(-1);
 }
 
-var replicate = function(method, url, headers, done) {
+var replicate = function(method, url, headers, req_data, done) {
     console.log("replicating " + method + " " + url);
     var queue = 0,
         answer = null;
 
-   const sendRequest = function(recipient) {
-        onSuccess = function() {
+   var sendRequest = function(recipient) {
+       var onSuccess = function() {
                 console.log("success " + method + " request to " + recipient.host + ":" + recipient.port + url);
                 always();
             },
@@ -88,6 +88,9 @@ var replicate = function(method, url, headers, done) {
         } else {
             var req = http.request(options, callback);
         }
+        if (req_data !== '') {
+            req.write(req_data);
+         }
         req.on('error', function(e) {
             answer = {
                 body: e.message,
@@ -112,10 +115,17 @@ var replicate = function(method, url, headers, done) {
 };
 
 
+
 var server = function(req, res) {
     if(config.clear_host_header)
         delete req.headers.host
-    replicate(req.method, req.url, req.headers, function(response) {
+    var body = ''
+    req.on('data', function(data) {
+       body += data
+       console.log('Partial body: ' + body)
+    })
+    req.on('end', () =>
+        replicate(req.method, req.url, req.headers, body, function(response) {
         if (req.method === "HEAD") {
             response.headers["Content-Length"] = 0;
         }
@@ -125,7 +135,8 @@ var server = function(req, res) {
         } else {
             res.end(response.body);
         }
-    });
+        })
+    );
 };
 
 http.createServer(server).listen(config.listen_port, function() {
