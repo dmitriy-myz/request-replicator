@@ -21,8 +21,8 @@ var replicate = function(method, url, headers, req_data, done) {
     var queue = 0,
         answer = null;
 
-   var sendRequest = function(recipient) {
-       var onSuccess = function() {
+    var sendRequest = function(recipient) {
+        var onSuccess = function() {
                 console.log("success " + method + " request to " + recipient.host + ":" + recipient.port + url);
                 always();
             },
@@ -90,7 +90,7 @@ var replicate = function(method, url, headers, req_data, done) {
         }
         if (req_data !== '') {
             req.write(req_data);
-         }
+        }
         req.on('error', function(e) {
             answer = {
                 body: e.message,
@@ -117,24 +117,24 @@ var replicate = function(method, url, headers, req_data, done) {
 
 
 var server = function(req, res) {
-    if(config.clear_host_header)
+    if (config.clear_host_header)
         delete req.headers.host
     var body = ''
     req.on('data', function(data) {
-       body += data
-       console.log('Partial body: ' + body)
+        body += data
+        console.log('Partial body: ' + body)
     })
     req.on('end', () =>
         replicate(req.method, req.url, req.headers, body, function(response) {
-        if (req.method === "HEAD") {
-            response.headers["Content-Length"] = 0;
-        }
-        res.writeHead(response.statusCode, response.headers);
-        if (req.method === "HEAD") {
-            res.end();
-        } else {
-            res.end(response.body);
-        }
+            if (req.method === "HEAD") {
+                response.headers["Content-Length"] = 0;
+            }
+            res.writeHead(response.statusCode, response.headers);
+            if (req.method === "HEAD") {
+                res.end();
+            } else {
+                res.end(response.body);
+            }
         })
     );
 };
