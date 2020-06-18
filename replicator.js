@@ -19,7 +19,6 @@ try {
 var replicate = function(method, url, headers, done) {
     console.log("replicating " + method + " " + url);
     var queue = 0,
-        errors = 0,
         answer = null;
 
    const sendRequest = function(recipient) {
@@ -30,7 +29,6 @@ var replicate = function(method, url, headers, done) {
             onError = function(e) {
                 console.log("failed " + method + " request to " + recipient.host + ":" + recipient.port + url);
                 console.log(e.message);
-                errors++;
                 always();
             },
             always = function() {
@@ -69,6 +67,8 @@ var replicate = function(method, url, headers, done) {
                         headers: response.headers,
                         body: body
                     };
+                    onError(new Error(body));
+                } else {
                     onError(new Error(body));
                 }
             });
@@ -129,5 +129,5 @@ var server = function(req, res) {
 };
 
 http.createServer(server).listen(config.listen_port, function() {
-    console.info('replicator on ' + config.listen_port);
+    console.log('replicator on ' + config.listen_port);
 });
