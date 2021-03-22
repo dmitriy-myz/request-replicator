@@ -92,11 +92,13 @@ var replicate = function(method, url, headers, req_data, done) {
             req.write(req_data);
         }
         req.on('error', function(e) {
-            answer = {
-                body: e.message,
-                statusCode: 500,
-                headers: {}
-            };
+            if (config.return_policy !== "success" || !answer) {
+                answer = {
+                    body: e.message,
+                    statusCode: 500,
+                    headers: {}
+                };
+            }
             onError(e);
         });
         req.on('socket', function(socket) {
